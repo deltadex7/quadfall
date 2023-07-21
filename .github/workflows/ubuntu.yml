@@ -1,0 +1,36 @@
+name: Ubuntu
+
+on:
+  push:
+    branches: [ main ]
+    
+  pull_request:
+    branches: [ main ]
+    
+jobs:    
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+        - g++
+        - clang++
+    name: Ubuntu (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Update apt repositories
+      run: sudo apt update
+    - name: Install raylib dependencies
+      run: sudo apt install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev
+    - name: Setting up
+      run: CXX=${{ matrix.compiler }} make setup
+    - name: Building with ${{ matrix.compiler }}
+      run: CXX=${{ matrix.compiler }} make build
+    - name: 'Export binary'
+      uses: actions/upload-artifact@v3
+      with:
+          name: app
+          path: bin/linux/app
+    - name: Final cleaning
+      run: make clean && make clean-lib

@@ -1,0 +1,32 @@
+name: macOS
+
+on:
+  push:
+    branches: [ main ]
+    
+  pull_request:
+    branches: [ main ]
+    
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+        - g++
+        - clang++
+    name: macOS (${{ matrix.compiler }})
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setting up
+      run: CXX=${{ matrix.compiler }} make setup
+    - name: Building with ${{ matrix.compiler }}
+      run: CXX=${{ matrix.compiler }} make build
+    - name: 'Export binary'
+      uses: actions/upload-artifact@v3
+      with:
+          name: app
+          path: bin/mac/app
+    - name: Final cleaning
+      run: make clean && make clean-lib
