@@ -1,6 +1,7 @@
-include
-lib
-bin
+include/
+lib/
+bin/
+obj/
 .idea
 .vscode/*
 !.vscode/settings.json
