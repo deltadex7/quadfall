@@ -117,4 +117,4 @@ clean:
 clean-lib:
 	$(RM) $(call platformpth, $(libDir)/*)
 	$(RM) $(call platformpth, include/*)
-	cd vendor/raylib-cpp/vendor/raylib/src $(THEN) "$(MAKE)" clean
+	cd vendor/raylib/src $(THEN) "$(MAKE)" clean
