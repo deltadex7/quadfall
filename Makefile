@@ -30,6 +30,7 @@ ifeq ($(OS), Windows_NT)
 	# Set Windows macros
 	platform := windows
 	CXX ?= g++
+	CC ?= gcc
 	linkFlags += -Wl,--allow-multiple-definition -pthread -lopengl32 -lgdi32 -lwinmm -mwindows -static -static-libgcc -static-libstdc++
 	libGenDir := src
 	THEN := &&
@@ -44,6 +45,7 @@ else
 		# Set Linux macros
 		platform := linux
 		CXX ?= g++
+		CC ?= gcc
 		linkFlags += -l GL -l m -l pthread -l dl -l rt -l X11
 		libGenDir := src
 	endif
@@ -51,6 +53,7 @@ else
 		# Set macOS macros
 		platform := mac
 		CXX ?= clang++
+		CC ?= clang
 		linkFlags += -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
 		libGenDir := src
 	endif
@@ -87,7 +90,8 @@ include: submodules
 
 # Build the raylib static library file and copy it into lib
 lib: submodules
-	cd vendor/raylib/src $(THEN) "$(MAKE)" PLATFORM=PLATFORM_DESKTOP
+	patch -p2 $(call platformpth, vendor/raylib/src/config.h) raylib_config.patch
+	cd vendor/raylib/src $(THEN) "$(MAKE)" PLATFORM=PLATFORM_DESKTOP CC=$(CC)
 	$(MKDIR) $(call platformpth, $(libDir))
 	$(call COPY,vendor/raylib/$(libGenDir),lib/$(platform),libraylib.a)
 
@@ -117,4 +121,5 @@ clean:
 clean-lib:
 	$(RM) $(call platformpth, $(libDir)/*)
 	$(RM) $(call platformpth, include/*)
+	patch -R -p2 $(call platformpth, vendor/raylib/src/config.h) raylib_config.patch
 	cd vendor/raylib/src $(THEN) "$(MAKE)" clean
