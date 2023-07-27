@@ -12,7 +12,7 @@ namespace chrono = std::chrono;
 
 using QC = qf::CellColor;
 using RC = raylib::Color;
-using intervalTimePoint = chrono::_V2::steady_clock::time_point;
+using intervalTimePoint = chrono::steady_clock::time_point;
 using durationDouble = chrono::duration<double>;
 
 int main() {
