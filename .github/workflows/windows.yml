@@ -12,24 +12,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sys:
-        - mingw64
-        - clang64
-        compiler:
-        - g++
-        - clang++
-    name: Windows (${{ matrix.compiler }})
+        include: [
+          { sys: mingw64, cxx: g++, cc: gcc },
+          { sys: clang64, cxx: clang++, cc: clang },
+        ]
+    name: Windows (${{ matrix.cxx }})
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
     - uses: msys2/setup-msys2@v2
       with:
         msystem: ${{ matrix.sys }}
-    - name: Setting up
-      run: "set CXX=${{ matrix.compiler }} & make setup"
+    - name: Setting up using ${{ matrix.cc }}
+      run: "set CXX=${{ matrix.cxx }} & set CC=${{ matrix.cc }} & make setup"
       shell: cmd
-    - name: Building with default compiler (G++/GCC)
-      run: "set CXX=${{ matrix.compiler }} & make build"
+    - name: Building with ${{ matrix.cxx }}
+      run: "set CXX=${{ matrix.cxx }} & set CC=${{ matrix.cc }} & make build"
       shell: cmd
     - name: 'Export binary'
       uses: actions/upload-artifact@v3

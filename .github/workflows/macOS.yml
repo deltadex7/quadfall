@@ -12,17 +12,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler:
-        - g++
-        - clang++
-    name: macOS (${{ matrix.compiler }})
+        include: [
+          { sys: mingw64, cxx: g++, cc: gcc },
+          { sys: clang64, cxx: clang++, cc: clang },
+        ]
+    name: macOS (${{ matrix.cxx }})
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Setting up
-      run: CXX=${{ matrix.compiler }} make setup
-    - name: Building with ${{ matrix.compiler }}
-      run: CXX=${{ matrix.compiler }} make build
+    - name: Setting up using ${{ matrix.cc }}
+      run: CXX=${{ matrix.cxx }} CC=${{ matrix.cc }} make setup
+    - name: Building with ${{ matrix.cxx }}
+      run: CXX=${{ matrix.cxx }} CC=${{ matrix.cc }} make build
     - name: 'Export binary'
       uses: actions/upload-artifact@v3
       with:

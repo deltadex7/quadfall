@@ -12,10 +12,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler:
-        - g++
-        - clang++
-    name: Ubuntu (${{ matrix.compiler }})
+        include: [
+          { sys: mingw64, cxx: g++, cc: gcc },
+          { sys: clang64, cxx: clang++, cc: clang },
+        ]
+
+    name: Ubuntu (${{ matrix.cxx }})
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -23,10 +25,10 @@ jobs:
       run: sudo apt update
     - name: Install raylib dependencies
       run: sudo apt install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev
-    - name: Setting up
-      run: CXX=${{ matrix.compiler }} make setup
-    - name: Building with ${{ matrix.compiler }}
-      run: CXX=${{ matrix.compiler }} make build
+    - name: Setting up using ${{ matrix.cc }}
+      run: CXX=${{ matrix.cxx }} CC=${{ matrix.cc }} make setup
+    - name: Building with ${{ matrix.cxx }}
+      run: CXX=${{ matrix.cxx }} CC=${{ matrix.cc }} make build
     - name: 'Export binary'
       uses: actions/upload-artifact@v3
       with:
