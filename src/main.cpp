@@ -182,7 +182,7 @@ int main() {
     //----------------
     // * WAIT
     #pragma region wait
-    auto compareUpdateDraw = nextUpdate <=> nextDraw;
+    auto compareUpdateDraw = nextUpdate.time_since_epoch().count() <=> nextDraw.time_since_epoch().count();
     currentTime = steadyClock.now();
     durationDouble waitTime;
 
