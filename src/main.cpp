@@ -15,6 +15,8 @@ using RC = raylib::Color;
 using intervalTimePoint = chrono::steady_clock::time_point;
 using durationDouble = chrono::duration<double>;
 
+const int NANO_IN_SEC = 1000000000;
+
 int main() {
   
   // * INITIALIZATION PHASE * //
@@ -49,10 +51,10 @@ int main() {
 
   // clock with fixed interval in nanoseconds
   auto steadyClock = chrono::steady_clock();
+  using steadyInterval = chrono::steady_clock::duration;
 
   const int targetUpdatePerSecond = 600;
-  using targetUpdateInterval = chrono::duration<int, std::ratio<1, targetUpdatePerSecond>>;
-  const auto targetUpdateTick = targetUpdateInterval(1);
+  const auto targetUpdateTick = steadyInterval(NANO_IN_SEC/targetUpdatePerSecond);
   // timepoint since last update
   intervalTimePoint lastUpdate;
   // timepoint at current update
@@ -64,8 +66,7 @@ int main() {
   // * graphics draw timer
 
   const int targetDrawPerSecond = 60;
-  using targetDrawInterval = chrono::duration<int, std::ratio<1, targetDrawPerSecond>>;
-  const auto targetDrawTick = targetDrawInterval(1);
+  const auto targetDrawTick = steadyInterval(NANO_IN_SEC/targetDrawPerSecond);
   // timepoint since last draw
   intervalTimePoint lastDraw;
   // timepoint at current draw
@@ -134,7 +135,7 @@ int main() {
 
       bool updateDirty = false;
       while (nextUpdate <= currentTime) {
-        nextUpdate += chrono::duration_cast<chrono::steady_clock::duration>(targetUpdateTick);
+        nextUpdate += targetUpdateTick;
 
         if (updateDirty)
           std::cout << "Skipping update tick, input may be dropped, logic is delayed.\n";
@@ -142,7 +143,7 @@ int main() {
         updateDirty = true;
       }
 
-      std::cout << "Time to update: " << updateTimeDif.count() << "\n"
+      std::cout << "Time to update: " << updateTimeDif.count() * 1000 << "\n"
                 << "Current UPS   : " << 1 / updateTimeDif.count() << "\n";
 
       lastUpdate = currentUpdate;
@@ -169,10 +170,9 @@ int main() {
       currentDraw = steadyClock.now();
       auto drawTimeDif = chrono::duration_cast<durationDouble>(currentDraw - lastDraw);
 
-      nextDraw = currentDraw;
-      nextDraw += chrono::duration_cast<chrono::steady_clock::duration>(targetDrawTick);
+      nextDraw = currentDraw + targetDrawTick;
 
-      std::cout << "Time to draw: " << drawTimeDif.count() << "\n"
+      std::cout << "Time to draw: " << drawTimeDif.count() * 1000 << "\n"
                 << "Current DPS   : " << 1 / drawTimeDif.count() << "\n";
 
       lastDraw = currentDraw;
